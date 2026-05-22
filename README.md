@@ -50,7 +50,7 @@
 
 ## 部署
 
-部署详见[DEPLOY.md](https://github.com/harry-zheng-cust/A-letter-from-overseas/blob/main/DEPLOY.md)文档
+部署详见[DEPLOY.md](https://github.com/harry-zheng-cust/A-letter-from-oversea/blob/main/DEPLOY.md)文档
 
 
 ## 说明
