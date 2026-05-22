@@ -217,7 +217,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
-=======
 # Python
 __pycache__/
 *.py[cod]
@@ -242,8 +241,6 @@ ENV/
 Thumbs.db
 
 # Music files (optional, add your own)
-static/music/*.mp3
 
 # Logs
 *.log
->>>>>>> master
