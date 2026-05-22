@@ -1,0 +1,1042 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>一封侨批</title>
+  <style>
+    :root {
+      --paper: #ead8b8;
+      --ink: #17120d;
+      --seal: #cf5c52;
+      --line: #b97c77;
+      --col: 32px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: #271b13;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 18% 10%, rgba(255,255,255,.5), transparent 22rem),
+        linear-gradient(135deg, #d8ad76, #f1d2a3 40%, #c58c58);
+      min-height: 100vh;
+    }
+    body.previewing {
+      overflow-x: hidden;
+    }
+    button, input, textarea { font: inherit; }
+    .shell {
+      display: grid;
+      grid-template-columns: minmax(320px, 420px) 1fr;
+      gap: 18px;
+      min-height: 100vh;
+      padding: 18px;
+    }
+    .editor {
+      background: rgba(255,250,240,.93);
+      border: 1px solid rgba(105,65,33,.24);
+      border-radius: 8px;
+      box-shadow: 0 18px 48px rgba(61,31,10,.18);
+      padding: 16px;
+      align-self: start;
+      position: sticky;
+      top: 18px;
+    }
+    .editor h1 { margin: 0 0 14px; font-size: 22px; letter-spacing: 0; }
+    .editor-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .editor-head h1 { margin: 0; }
+    .logout-link {
+      color: #8a4a39;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .logout-link:hover { text-decoration: underline; }
+    .field { display: grid; gap: 7px; margin-bottom: 12px; }
+    .field label { color: #5b422f; font-size: 13px; font-weight: 700; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    input, textarea {
+      width: 100%;
+      border: 1px solid #c9a177;
+      border-radius: 6px;
+      background: #fffdf6;
+      color: #21160f;
+      padding: 10px 11px;
+      outline: none;
+    }
+    textarea { min-height: 154px; resize: vertical; line-height: 1.7; }
+    input:focus, textarea:focus { border-color: #9d4e3f; box-shadow: 0 0 0 3px rgba(157,78,63,.16); }
+    .actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 14px; }
+    .btn {
+      border: 0;
+      border-radius: 6px;
+      background: #2a1a11;
+      color: #fff8eb;
+      padding: 10px 13px;
+      cursor: pointer;
+      min-height: 40px;
+    }
+    .btn.secondary { background: #9d4e3f; }
+    .btn.ghost { background: transparent; color: #432d1e; border: 1px solid #b98e65; }
+    .share-box {
+      display: none;
+      margin-top: 12px;
+      padding: 10px;
+      border: 1px dashed #b98767;
+      border-radius: 6px;
+      background: #fff7e6;
+      overflow-wrap: anywhere;
+      font-size: 13px;
+    }
+    .stage {
+      min-height: calc(100vh - 36px);
+      display: grid;
+      align-content: center;
+      justify-items: center;
+      gap: 14px;
+      padding: 10px;
+    }
+    .book-wrap {
+      width: min(100%, 1120px);
+      perspective: 1800px;
+    }
+    .album {
+      position: static;
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 300px));
+      justify-content: center;
+      gap: 28px 30px;
+      padding: 8px;
+      transform-style: preserve-3d;
+    }
+    .sheet {
+      position: relative;
+      min-height: 0;
+      aspect-ratio: 449 / 706;
+      container-type: inline-size;
+      background:
+        radial-gradient(circle at 30% 20%, rgba(255,255,255,.2), transparent 16rem),
+        repeating-linear-gradient(95deg, rgba(120,82,48,.035) 0 2px, transparent 2px 7px),
+        var(--paper);
+      border: 3px solid rgba(142,67,55,.64);
+      box-shadow: inset 0 0 0 2px rgba(255,248,225,.5), 0 24px 50px rgba(70,35,14,.22);
+      overflow: hidden;
+      opacity: 1;
+      pointer-events: auto;
+      transform-origin: left center;
+      transform: none;
+      transition: transform .55s ease, opacity .35s ease;
+    }
+    .cover {
+      display: block;
+      padding: 0;
+      background:
+        radial-gradient(circle at 46% 28%, rgba(147,73,43,.08), transparent 16%),
+        radial-gradient(circle at 78% 62%, rgba(255,255,255,.2), transparent 18%),
+        repeating-linear-gradient(84deg, rgba(105,75,46,.04) 0 2px, transparent 2px 8px),
+        #e8d7b8;
+    }
+    .cover:after {
+      content: "";
+      position: absolute;
+      inset: 1.1% 1.6%;
+      border: 1px solid rgba(255,251,232,.72);
+      box-shadow: inset 0 0 0 1px rgba(142,67,55,.18);
+      pointer-events: none;
+      z-index: 8;
+    }
+    .stamp {
+      position: absolute;
+      top: 2.35%;
+      left: 8.2%;
+      width: 19.2%;
+      height: 6.15%;
+      display: grid;
+      place-items: center;
+      transform: rotate(8deg);
+      border: 2px solid #596067;
+      background: #eee9dc;
+      color: #1f2a34;
+      font-family: "KaiTi", "楷体", "SimKai", "STKaiti", serif;
+      font-weight: 700;
+      padding: 0;
+      font-size: clamp(14px, 5.4cqw, 25px);
+      line-height: 1;
+      z-index: 4;
+      box-shadow: inset 0 0 0 2px rgba(255,255,255,.45);
+    }
+    .recipient {
+      position: absolute;
+      left: 8.8%;
+      width: 16.5%;
+      writing-mode: vertical-rl;
+      text-orientation: upright;
+      font-family: "华文行楷", "STXingkai", "KaiTi", "楷体", "SimKai", "STKaiti", serif;
+      font-size: clamp(28px, 11.8cqw, 60px);
+      letter-spacing: .06em;
+      line-height: 1.08;
+      white-space: pre-wrap;
+      z-index: 5;
+    }
+    .recipient-main {
+      top: 20%;
+      height: 43%;
+    }
+    .recipient-tail {
+      top: 65.2%;
+      height: 23%;
+    }
+    .red-band {
+      position: absolute;
+      left: 32.0%;
+      top: 0;
+      bottom: 0;
+      width: 31.35%;
+      background: linear-gradient(180deg, rgba(191,61,53,.88), rgba(219,104,91,.9));
+      z-index: 1;
+    }
+    .red-band:before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(92,25,20,.12), transparent 28%, transparent 72%, rgba(92,25,20,.12)),
+        radial-gradient(ellipse at 50% 18%, rgba(255,218,187,.14), transparent 34%),
+        radial-gradient(ellipse at 52% 78%, rgba(96,23,19,.13), transparent 32%);
+    }
+    .wuyang-mark {
+      position: absolute;
+      inset: 4% 7% 3%;
+      width: 86%;
+      height: 93%;
+      z-index: 1;
+      opacity: .23;
+      pointer-events: none;
+    }
+    .wuyang-mark path,
+    .wuyang-mark circle {
+      fill: none;
+      stroke: #5b1712;
+      stroke-width: 5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .wuyang-mark .thin { stroke-width: 3.2; opacity: .72; }
+    .wuyang-mark .soft { opacity: .42; }
+    .wuyang-mark .grain { fill: #5b1712; stroke: none; opacity: .48; }
+    .red-band:after {
+      content: "";
+      position: absolute;
+      left: 20%;
+      right: 20%;
+      bottom: 6%;
+      height: 16%;
+      opacity: .12;
+      border: 3px solid #3a1613;
+      border-top-color: transparent;
+      border-radius: 50%;
+    }
+    .cover-title {
+      position: absolute;
+      top: 30%;
+      left: 50%;
+      writing-mode: vertical-rl;
+      text-orientation: upright;
+      font-family: "华文行楷", "STXingkai", "KaiTi", "楷体", "SimKai", "STKaiti", serif;
+      font-size: clamp(54px, 24.4cqw, 110px);
+      font-weight: 900;
+      letter-spacing: .035em;
+      color: #160c09;
+      text-shadow: 1px 2px 0 rgba(255,221,187,.18);
+      z-index: 3;
+      line-height: .98;
+      transform: translateX(-50%);
+    }
+    .postmark {
+      position: absolute;
+      top: 7.7%;
+      left: 14.0%;
+      width: 72.5%;
+      height: 13.8%;
+      opacity: .78;
+      z-index: 6;
+      pointer-events: none;
+    }
+    .postmark path,
+    .postmark circle {
+      fill: none;
+      stroke: #8a332b;
+      stroke-width: 4.6;
+      stroke-linecap: round;
+    }
+    .postmark circle { stroke-width: 3.7; opacity: .72; }
+    .side-note {
+      position: absolute;
+      right: 5.2%;
+      top: 20.6%;
+      width: 20.0%;
+      height: 73.0%;
+      writing-mode: vertical-rl;
+      text-orientation: upright;
+      font-family: "KaiTi", "楷体", "SimKai", "STKaiti", serif;
+      font-size: clamp(25px, 10.8cqw, 49px);
+      color: rgba(43,31,22,.36);
+      border: 2px solid rgba(83,68,53,.28);
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      padding: 4.4% 1.4%;
+      line-height: 1;
+      z-index: 5;
+    }
+    .letter {
+      --col: clamp(24px, 7.1cqw, 32px);
+      --letter-font: clamp(16px, 4.7cqw, 20px);
+      --letter-inset-x: 7%;
+      --letter-inset-y: 5%;
+      --grid-offset: 0px;
+      background: #fffdf4;
+      border-color: rgba(185,124,119,.65);
+      padding: 34px 30px;
+    }
+    .letter:after {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 18px;
+      transform: translateX(-50%);
+      opacity: .55;
+      pointer-events: none;
+    }
+    .letter-grid {
+      position: absolute;
+      top: var(--letter-inset-y, 5%);
+      right: calc(var(--letter-inset-x, 7%) + var(--grid-offset, 0px));
+      bottom: var(--letter-inset-y, 5%);
+      left: calc(var(--letter-inset-x, 7%) + var(--grid-offset, 0px));
+      background-image: linear-gradient(to left, rgba(162,71,83,.72) 0 2px, transparent 2px);
+      background-position: right top;
+      background-repeat: repeat-x;
+      background-size: var(--col) 100%;
+      pointer-events: none;
+    }
+    .letter-grid:before {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      width: 2px;
+      background: rgba(162,71,83,.72);
+    }
+    .letter-body {
+      position: absolute;
+      top: calc(var(--letter-inset-y, 5%) + 8px);
+      right: calc(var(--letter-inset-x, 7%) + var(--grid-offset, 0px));
+      bottom: calc(var(--letter-inset-y, 5%) + 8px);
+      left: calc(var(--letter-inset-x, 7%) + var(--grid-offset, 0px));
+      z-index: 2;
+      writing-mode: vertical-rl;
+      text-orientation: upright;
+      font-family: "STKaiti", "KaiTi", "FangSong", serif;
+      font-size: var(--letter-font);
+      line-height: var(--col);
+      letter-spacing: .06em;
+      white-space: pre-wrap;
+      overflow: hidden;
+      padding: 0;
+      color: #1b1511;
+      text-align: start;
+    }
+    .back {
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .address-lines {
+      height: 88px;
+      border: 2px solid rgba(139,102,75,.28);
+      border-radius: 8px;
+    }
+    .back-mark {
+      height: 86px;
+      border-top: 2px solid rgba(139,102,75,.24);
+      display: grid;
+      place-items: center;
+      font-family: "STKaiti", "KaiTi", serif;
+      font-size: 28px;
+      color: #1a130f;
+    }
+    .signature-page {
+      padding: 30px;
+      display: grid;
+      grid-template-rows: 1fr auto;
+      gap: 20px;
+    }
+    .signature-note {
+      border: 2px solid rgba(139,102,75,.24);
+      border-radius: 8px;
+      background: rgba(255,253,244,.26) url("/static/imgs/flower.jpg") center / cover no-repeat;
+      overflow: hidden;
+    }
+    .signature-note img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+    }
+    .packet-page {
+      display: grid;
+      place-items: center;
+      padding: 34px;
+    }
+    .packet-page:before {
+      content: "";
+      position: absolute;
+      inset: 28px;
+      border: 2px solid rgba(139,77,62,.28);
+      border-radius: 10px;
+    }
+    .red-packet {
+      position: relative;
+      width: min(270px, 72%);
+      min-height: 350px;
+      background:
+        radial-gradient(circle at 50% 39%, rgba(255,220,135,.92) 0 42px, transparent 43px),
+        linear-gradient(160deg, #c92020, #f04d32);
+      color: #ffedbc;
+      border: 2px solid rgba(108,20,16,.25);
+      border-radius: 10px;
+      padding: 70px 18px 20px;
+      text-align: center;
+      box-shadow: 0 18px 38px rgba(102,30,18,.25);
+      cursor: pointer;
+      font-family: "STKaiti", "KaiTi", serif;
+      font-size: 25px;
+    }
+    .red-packet:before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 100px;
+      border-top: 2px solid rgba(255,234,173,.45);
+      transform: skewY(-14deg);
+    }
+    .red-packet strong { display: block; font-size: 35px; margin-top: 12px; color: #fff6d7; font-family: Georgia, serif; }
+    .red-packet span { display: block; font-size: 21px; margin-top: 18px; line-height: 1.45; }
+    .pager {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: min(100%, 470px);
+      display: none;
+    }
+    .page-count {
+      min-width: 78px;
+      text-align: center;
+      color: #fff8e6;
+      text-shadow: 0 1px 2px rgba(69,30,10,.45);
+      font-weight: 700;
+    }
+    .preview-hint {
+      color: #5d3a24;
+      font-size: 13px;
+      text-align: center;
+      margin-top: 8px;
+    }
+    .previewing .shell {
+      grid-template-columns: minmax(300px, 360px) 1fr;
+    }
+    .viewer .book-wrap,
+    .previewing .book-wrap {
+      width: min(100%, 470px);
+    }
+    .viewer .album,
+    .previewing .album {
+      position: relative;
+      display: block;
+      aspect-ratio: 449 / 706;
+      min-height: 560px;
+      padding: 0;
+    }
+    .viewer .sheet,
+    .previewing .sheet {
+      position: absolute;
+      inset: 0;
+      min-height: 100%;
+      opacity: 0;
+      pointer-events: none;
+      transform: rotateY(-22deg) translateX(18px) scale(.985);
+    }
+    .viewer .sheet.active,
+    .previewing .sheet.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: rotateY(0) translateX(0) scale(1);
+      z-index: 3;
+    }
+    .viewer .sheet.past,
+    .previewing .sheet.past {
+      opacity: 0;
+      transform: rotateY(-118deg) translateX(-24px) scale(.96);
+      z-index: 1;
+    }
+    .viewer .pager,
+    .previewing .pager {
+      display: flex;
+    }
+    .viewer .editor { display: none; }
+    .viewer .shell { display: block; padding: 0; }
+    .viewer .stage {
+      min-height: 100vh;
+      padding: clamp(12px, 3vw, 30px);
+      background:
+        linear-gradient(180deg, rgba(58,25,12,.2), rgba(58,25,12,.62)),
+        radial-gradient(circle at 50% 0, #ffe8bc, #b98150 58%, #5f321d);
+    }
+    .viewer .preview-hint { color: #fff1d4; }
+    .music {
+      position: fixed;
+      right: 14px;
+      top: 14px;
+      z-index: 10;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.45);
+      background: rgba(36,20,12,.58);
+      color: #fff8e6;
+      display: none;
+      place-items: center;
+      cursor: pointer;
+    }
+    .viewer .music { display: grid; }
+    @media (max-width: 900px) {
+      .shell { grid-template-columns: 1fr; padding: 10px; }
+      .previewing .shell { grid-template-columns: 1fr; }
+      .editor { position: static; }
+      .stage { min-height: auto; }
+    }
+    @media (max-width: 760px) {
+      .viewer .pager,
+      .previewing .pager {
+        display: none;
+      }
+      .viewer .preview-hint,
+      .previewing .preview-hint {
+        margin-top: 4px;
+      }
+    }
+    @media (max-width: 520px) {
+      .row { grid-template-columns: 1fr; }
+      .viewer .book-wrap, .previewing .book-wrap, .pager { width: min(100%, 390px); }
+      .viewer .album, .previewing .album { min-height: 560px; }
+      .cover { padding: 0; }
+      .letter {
+        --col: clamp(24px, 7.1cqw, 28px);
+        --letter-font: clamp(16px, 4.7cqw, 18px);
+        --letter-inset-x: 6.4%;
+        --letter-inset-y: 4.7%;
+        padding: 26px 22px;
+      }
+      .stamp { top: 2.35%; left: 8.2%; font-size: clamp(14px, 5.4cqw, 25px); }
+      .postmark { top: 7.7%; left: 14%; width: 72.5%; }
+      .red-packet { min-height: 320px; width: min(250px, 82%); }
+    }
+  </style>
+</head>
+<body class="{{ 'viewer' if share else '' }}">
+  <button class="music" id="musicToggle" aria-label="播放音乐">♪</button>
+  <audio
+    id="bgm"
+    loop
+    preload="auto"
+    playsinline
+    webkit-playsinline
+    {% if share %}autoplay{% endif %}
+    src="/static/music/yuexiazhucha.mp3"
+  ></audio>
+
+  <main class="shell">
+    <aside class="editor">
+      <div class="editor-head">
+        <h1>侨批生成器</h1>
+        <a class="logout-link" href="/logout">退出</a>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="coverText">封面大字</label>
+          <input id="coverText" maxlength="12" value="平安批">
+        </div>
+        <div class="field">
+          <label for="recipient">左侧收信</label>
+          <input id="recipient" maxlength="16" value="淑柔吾妻 亲启">
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="sender">落款</label>
+          <input id="sender" maxlength="16" value="的情书">
+        </div>
+        <div class="field">
+          <label for="amount">红包金额</label>
+          <input id="amount" maxlength="20" placeholder="如 88.88">
+        </div>
+      </div>
+      <div class="field">
+        <label for="prompt">给百炼的提示</label>
+        <textarea id="prompt" placeholder="写给谁、想表达什么、家乡/远方背景、语气要求等"></textarea>
+      </div>
+      <div class="field">
+        <label for="body">正文，可手动修改</label>
+        <textarea id="body"></textarea>
+      </div>
+      <div class="field">
+        <label for="blessing">红包祝福语</label>
+        <input id="blessing" maxlength="120" placeholder="平安喜乐，万事顺遂">
+      </div>
+      <div class="actions">
+        <button class="btn secondary" id="generateBtn">百炼生成正文</button>
+        <button class="btn ghost" id="previewBtn" type="button">预览效果</button>
+        <button class="btn" id="shareBtn">生成分享</button>
+        <button class="btn ghost" id="copyBtn" type="button">复制链接</button>
+      </div>
+      <div class="share-box" id="shareBox"></div>
+      <div class="preview-hint">预览区可点击翻页，也可用下方按钮切换页面。</div>
+    </aside>
+
+    <section class="stage" id="stage">
+      <div class="book-wrap">
+        <div class="album" id="album">
+          <article class="sheet cover" data-page="0">
+            <div class="stamp">银信</div>
+            <svg class="postmark" viewBox="0 0 320 96" aria-hidden="true">
+              <circle cx="52" cy="62" r="43"></circle>
+              <path d="M20 54c26-18 52-18 78 0s52 18 78 0 52-18 78 0 52 18 78 0"></path>
+              <path d="M22 43c26-18 52-18 78 0s52 18 78 0 52-18 78 0 52 18 78 0"></path>
+              <path d="M24 32c26-18 52-18 78 0s52 18 78 0 52-18 78 0 52 18 78 0"></path>
+              <path d="M26 21c26-18 52-18 78 0s52 18 78 0 52-18 78 0 52 18 78 0"></path>
+              <path d="M28 10c26-18 52-18 78 0s52 18 78 0 52-18 78 0 52 18 78 0"></path>
+            </svg>
+            <div class="recipient recipient-main" id="previewRecipientMain"></div>
+            <div class="recipient recipient-tail" id="previewRecipientTail"></div>
+            <div class="red-band">
+              <svg class="wuyang-mark" viewBox="0 0 180 620" aria-hidden="true">
+                <path class="soft" d="M98 34c-26 21-39 50-31 81 7 29 31 43 56 53 30 12 44 35 39 65-5 34-34 55-68 52-33-3-57-24-63-55"></path>
+                <path d="M95 92c-29-14-58-8-72 18-12 23-3 51 21 64 22 12 50 7 67-13"></path>
+                <path class="thin" d="M70 105c-11-29-7-52 11-70 10 22 8 43-4 62"></path>
+                <path class="thin" d="M92 109c16-25 37-38 64-34-8 26-26 41-55 45"></path>
+                <path d="M63 174c-16 34-20 73-9 117 10 38 31 67 62 88"></path>
+                <path d="M111 174c20 34 28 72 22 113-7 43-27 76-61 99"></path>
+                <path class="thin" d="M54 285c-24 18-36 43-35 76 27-3 48-17 63-42"></path>
+                <path class="thin" d="M131 278c25 15 39 39 42 71-28 1-50-11-67-35"></path>
+                <path d="M71 383c-28 28-40 64-33 108 38-4 65-25 81-64"></path>
+                <path d="M111 380c30 24 45 58 45 101-37 1-66-17-86-53"></path>
+                <path class="thin" d="M83 434c-22 39-25 83-9 134"></path>
+                <path class="thin" d="M105 432c18 40 17 84-2 134"></path>
+                <path class="thin soft" d="M51 506c-16 21-22 45-17 73"></path>
+                <path class="thin soft" d="M134 500c17 22 22 48 15 77"></path>
+                <circle class="grain" cx="82" cy="139" r="4"></circle>
+                <circle class="grain" cx="102" cy="139" r="4"></circle>
+              </svg>
+              <div class="cover-title" id="previewCover"></div>
+            </div>
+            <div class="side-note">纸短情长 伏惟珍重</div>
+          </article>
+        <article class="sheet letter" data-page="2">
+          <div class="letter-grid"></div>
+          <div class="letter-body" id="previewBody"></div>
+        </article>
+        <article class="sheet letter" data-page="3">
+          <div class="letter-grid"></div>
+          <div class="letter-body" id="previewBodyMore"></div>
+        </article>
+        <article class="sheet signature-page" data-page="4">
+          <div class="signature-note">
+            <img src="/static/imgs/flower.jpg" alt="flower.jpg" />
+          </div>
+          <div class="back-mark" id="previewSender"></div>
+        </article>
+        <article class="sheet packet-page" data-page="5">
+          <div class="letter-grid"></div>
+          <div class="red-packet" id="packet">
+            查收红包
+            <strong id="packetAmount"></strong>
+            <span id="packetBlessing"></span>
+          </div>
+          </article>
+        </div>
+      </div>
+      <div class="pager">
+        <button class="btn ghost" id="prevPage" type="button">上一页</button>
+        <div class="page-count" id="pageCount">1 / 6</div>
+        <button class="btn ghost" id="nextPage" type="button">下一页</button>
+      </div>
+      <div class="preview-hint" id="viewerHint">左右滑动切换页面，电脑端也可点击页面两侧。</div>
+    </section>
+  </main>
+
+  <script>
+    const shareData = {{ share_json|safe }};
+    const $ = (id) => document.getElementById(id);
+    const defaults = {
+      cover_text: "平安批",
+      recipient: "淑柔吾妻 亲启",
+      sender: "阿嫲的情书",
+      body: "吾妻亲启：\n远行在外，晨昏每念家中灯火。海风虽阔，隔不断纸短情长。近日劳作尚安，已托人捎回些许银钱，愿添柴米，也愿你少些忧心。\n院中桂影、旧时茶盏，常在梦里相逢。待归期有信，必与你月下煮茶，细说别后光阴。\n伏惟珍重，阖家平安。",
+      amount: "",
+      blessing: "平安喜乐"
+    };
+    const state = shareData || defaults;
+    let pages = Array.from(document.querySelectorAll(".sheet"));
+    let renderedBodyText = "";
+    let layoutFrame = 0;
+    let currentPage = 0;
+    let previewMode = !!shareData;
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    function setControls(data) {
+      if (!$("coverText")) return;
+      $("coverText").value = data.cover_text || defaults.cover_text;
+      $("recipient").value = data.recipient || defaults.recipient;
+      $("sender").value = data.sender || defaults.sender;
+      $("body").value = data.body || defaults.body;
+      $("amount").value = data.amount || "";
+      $("blessing").value = data.blessing || defaults.blessing;
+    }
+
+    function splitRecipient(text) {
+      const clean = (text || defaults.recipient).trim();
+      if (!clean) return ["淑柔吾妻", "亲启"];
+      const compact = clean.replace(/\s+/g, "");
+      const marker = "亲启";
+      if (compact.endsWith(marker) && compact.length > marker.length) {
+        return [compact.slice(0, -marker.length), marker];
+      }
+      const parts = clean.split(/\s+/).filter(Boolean);
+      if (parts.length > 1) return [parts.slice(0, -1).join(""), parts[parts.length - 1]];
+      return [clean, "亲启"];
+    }
+
+    function resolveRatioLength(raw, size) {
+      const value = (raw || "").trim();
+      if (!value) return 0;
+      if (value.endsWith("%")) return size * parseFloat(value) / 100;
+      return parseFloat(value) || 0;
+    }
+
+    function refreshPages() {
+      pages = Array.from(document.querySelectorAll(".sheet"));
+    }
+
+    function letterPages() {
+      return Array.from(document.querySelectorAll(".sheet.letter"));
+    }
+
+    function createLetterPage(index) {
+      const source = letterPages()[0];
+      const page = source.cloneNode(true);
+      page.classList.remove("active", "past");
+      const body = page.querySelector(".letter-body");
+      if (body) {
+        body.id = `previewBodyExtra${index}`;
+        body.textContent = "";
+      }
+      const reference = document.querySelector(".signature-page");
+      reference.parentNode.insertBefore(page, reference);
+      return page;
+    }
+
+    function ensureLetterPageCount(count) {
+      const minPages = 2;
+      const wanted = Math.max(minPages, count);
+      let current = letterPages();
+      while (current.length < wanted) {
+        createLetterPage(current.length);
+        current = letterPages();
+      }
+      while (current.length > wanted && current.length > minPages) {
+        current[current.length - 1].remove();
+        current = letterPages();
+      }
+      refreshPages();
+    }
+
+    function syncLetterLayout() {
+      document.querySelectorAll(".sheet.letter").forEach((sheet) => {
+        const styles = getComputedStyle(sheet);
+        const body = sheet.querySelector(".letter-body");
+        const bodyStyles = body ? getComputedStyle(body) : styles;
+        const col = parseFloat(bodyStyles.lineHeight);
+        if (!Number.isFinite(col) || col <= 0) return;
+        const insetX = resolveRatioLength(styles.getPropertyValue("--letter-inset-x"), sheet.clientWidth);
+        const availableWidth = Math.max(0, sheet.clientWidth - insetX * 2);
+        const columnCount = Math.max(1, Math.floor(availableWidth / col));
+        const usedWidth = columnCount * col;
+        const offset = Math.max(0, (availableWidth - usedWidth) / 2);
+        sheet.style.setProperty("--grid-offset", `${offset}px`);
+      });
+    }
+
+    function bodyFits(body) {
+      return body.scrollWidth <= body.clientWidth + 1 && body.scrollHeight <= body.clientHeight + 1;
+    }
+
+    function fittingLength(body, chars) {
+      let low = 0;
+      let high = chars.length;
+      while (low < high) {
+        const mid = Math.ceil((low + high) / 2);
+        body.textContent = chars.slice(0, mid).join("");
+        if (bodyFits(body)) low = mid;
+        else high = mid - 1;
+      }
+      if (low === 0 && chars.length) low = 1;
+      body.textContent = "";
+      return low;
+    }
+
+    function paginateBody(text) {
+      const chars = Array.from((text || "").trim());
+      ensureLetterPageCount(2);
+
+      let offset = 0;
+      let index = 0;
+      while (offset < chars.length) {
+        ensureLetterPageCount(index + 1);
+        const body = letterPages()[index].querySelector(".letter-body");
+        const take = fittingLength(body, chars.slice(offset));
+        body.textContent = chars.slice(offset, offset + take).join("");
+        offset += take;
+        index += 1;
+      }
+
+      ensureLetterPageCount(Math.max(2, index));
+      letterPages().slice(index).forEach((page) => {
+        page.querySelector(".letter-body").textContent = "";
+      });
+      showPage(Math.min(currentPage, pages.length - 1));
+    }
+
+    function scheduleLetterLayoutSync() {
+      if (layoutFrame) window.cancelAnimationFrame(layoutFrame);
+      layoutFrame = window.requestAnimationFrame(() => {
+        layoutFrame = 0;
+        syncLetterLayout();
+        paginateBody(renderedBodyText);
+      });
+    }
+
+    function render(data) {
+      $("previewCover").textContent = data.cover_text || defaults.cover_text;
+      const [recipientMain, recipientTail] = splitRecipient(data.recipient);
+      $("previewRecipientMain").textContent = recipientMain;
+      $("previewRecipientTail").textContent = recipientTail;
+      $("previewSender").textContent = data.sender || defaults.sender;
+      renderedBodyText = data.body || defaults.body;
+      const amount = (data.amount || "").trim();
+      $("packetAmount").textContent = amount ? "¥" + amount : "未填写";
+      $("packetBlessing").textContent = data.blessing || "祝福已封存";
+      scheduleLetterLayoutSync();
+    }
+
+    function currentData() {
+      return {
+        cover_text: $("coverText").value.trim() || defaults.cover_text,
+        recipient: $("recipient").value.trim() || defaults.recipient,
+        sender: $("sender").value.trim() || defaults.sender,
+        body: $("body").value.trim() || defaults.body,
+        amount: $("amount").value.trim(),
+        blessing: $("blessing").value.trim()
+      };
+    }
+
+    async function copyText(text) {
+      const value = (text || "").trim();
+      if (!value) return false;
+
+      if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
+        try {
+          await navigator.clipboard.writeText(value);
+          return true;
+        } catch (error) {
+          // Fall back for non-HTTPS origins and embedded browsers.
+        }
+      }
+
+      const textarea = document.createElement("textarea");
+      textarea.value = value;
+      textarea.setAttribute("readonly", "");
+      textarea.style.position = "fixed";
+      textarea.style.left = "-9999px";
+      textarea.style.top = "-9999px";
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+
+      let copied = false;
+      try {
+        copied = typeof document.execCommand === "function" && document.execCommand("copy");
+      } finally {
+        textarea.remove();
+      }
+      return copied;
+    }
+
+    function showPage(index) {
+      currentPage = Math.max(0, Math.min(index, pages.length - 1));
+      pages.forEach((page, i) => {
+        if (previewMode) {
+          page.classList.toggle("active", i === currentPage);
+          page.classList.toggle("past", i < currentPage);
+        } else {
+          page.classList.remove("active");
+          page.classList.remove("past");
+        }
+      });
+      $("pageCount").textContent = `${currentPage + 1} / ${pages.length}`;
+      $("prevPage").disabled = currentPage === 0;
+      $("nextPage").disabled = currentPage === pages.length - 1;
+      $("previewBtn").textContent = previewMode ? "退出预览" : "预览效果";
+    }
+
+    setControls(state);
+    render(state);
+    showPage(0);
+    window.addEventListener("resize", scheduleLetterLayoutSync);
+
+    $("prevPage").addEventListener("click", () => showPage(currentPage - 1));
+    $("nextPage").addEventListener("click", () => showPage(currentPage + 1));
+    $("album").addEventListener("click", (event) => {
+      if (!previewMode) return;
+      const rect = $("album").getBoundingClientRect();
+      const isRight = event.clientX - rect.left > rect.width / 2;
+      showPage(currentPage + (isRight ? 1 : -1));
+    });
+    $("album").addEventListener("touchstart", (event) => {
+      if (!previewMode || !event.changedTouches.length) return;
+      touchStartX = event.changedTouches[0].clientX;
+      touchStartY = event.changedTouches[0].clientY;
+    }, { passive: true });
+    $("album").addEventListener("touchend", (event) => {
+      if (!previewMode || !event.changedTouches.length) return;
+      const touch = event.changedTouches[0];
+      const deltaX = touch.clientX - touchStartX;
+      const deltaY = touch.clientY - touchStartY;
+      if (Math.abs(deltaX) < 42 || Math.abs(deltaX) < Math.abs(deltaY) * 1.2) return;
+      showPage(currentPage + (deltaX < 0 ? 1 : -1));
+    }, { passive: true });
+
+    if (!shareData) {
+      ["coverText", "recipient", "sender", "body", "amount", "blessing"].forEach((id) => {
+        $(id).addEventListener("input", () => render(currentData()));
+      });
+
+      $("previewBtn").addEventListener("click", () => {
+        render(currentData());
+        previewMode = !previewMode;
+        document.body.classList.toggle("previewing", previewMode);
+        showPage(previewMode ? 0 : currentPage);
+        scheduleLetterLayoutSync();
+        $("stage").scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+
+      $("generateBtn").addEventListener("click", async () => {
+        $("generateBtn").disabled = true;
+        $("generateBtn").textContent = "生成中...";
+        const data = currentData();
+        const res = await fetch("/api/generate", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({...data, prompt: $("prompt").value.trim()})
+        });
+        const json = await res.json();
+        $("body").value = json.body || data.body;
+        render(currentData());
+        previewMode = true;
+        document.body.classList.add("previewing");
+        showPage(2);
+        scheduleLetterLayoutSync();
+        $("stage").scrollIntoView({ behavior: "smooth", block: "start" });
+        $("generateBtn").disabled = false;
+        $("generateBtn").textContent = "百炼生成正文";
+      });
+
+      $("shareBtn").addEventListener("click", async () => {
+        const res = await fetch("/api/letters", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify(currentData())
+        });
+        const json = await res.json();
+        const url = json.url && json.url.startsWith("http")
+          ? json.url
+          : new URL(json.url || json.path, location.origin).href;
+        $("shareBox").style.display = "block";
+        $("shareBox").textContent = url;
+        window.lastShareUrl = url;
+      });
+
+      $("copyBtn").addEventListener("click", async () => {
+        const text = window.lastShareUrl || $("shareBox").textContent;
+        const defaultLabel = $("copyBtn").textContent;
+        const copied = await copyText(text);
+        $("copyBtn").textContent = copied ? "已复制" : "复制失败";
+        window.setTimeout(() => {
+          $("copyBtn").textContent = defaultLabel;
+        }, 1200);
+      });
+    }
+
+    if (shareData) {
+      previewMode = true;
+      document.body.classList.add("previewing");
+      scheduleLetterLayoutSync();
+      const bgm = $("bgm");
+      const toggle = $("musicToggle");
+      const startBgm = () => {
+        bgm.muted = false;
+        bgm.volume = 0.86;
+        bgm.play().catch(() => {});
+      };
+      bgm.autoplay = true;
+      bgm.load();
+      startBgm();
+      window.addEventListener("load", startBgm, { once: true });
+      window.addEventListener("pageshow", startBgm, { once: true });
+      document.addEventListener("DOMContentLoaded", startBgm, { once: true });
+      document.addEventListener("WeixinJSBridgeReady", startBgm, { once: true });
+      document.addEventListener("visibilitychange", () => {
+        if (!document.hidden) startBgm();
+      });
+      ["click", "touchstart", "pointerdown"].forEach((eventName) => {
+        document.addEventListener(eventName, startBgm, { once: true, passive: true });
+      });
+      toggle.addEventListener("click", () => {
+        if (bgm.paused) bgm.play().catch(() => {});
+        else bgm.pause();
+      });
+      $("packet").addEventListener("click", () => {
+        const amount = shareData.amount || "未填写";
+        const blessing = shareData.blessing || "祝福已收到";
+        alert(`红包已查收\n金额：¥${amount}\n${blessing}`);
+      });
+    }
+  </script>
+</body>
+</html>
