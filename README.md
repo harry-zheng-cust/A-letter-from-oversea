@@ -12,15 +12,15 @@
 - Docker 部署：提供 `Dockerfile` 和 `docker-compose.yml`。
 * 主界面
   
-  <img width="2413" height="1358" alt="image" src="https://github.com/user-attachments/assets/7627ac7c-dd2e-4868-91a1-3659ab5951b2" />
+ <img width="2363" height="1386" alt="image" src="https://github.com/user-attachments/assets/a976c5b3-3fab-493e-ab24-df93f08fe4d7" />
 
 * 预览界面
   
-<img width="2337" height="1232" alt="image" src="https://github.com/user-attachments/assets/84ba62d3-0e55-43e9-8812-3e7016ee959e" />
+<img width="2014" height="1294" alt="image" src="https://github.com/user-attachments/assets/d75da412-19e8-4f40-8168-a01a0842da05" />
 
 * 实际展示界面
-  
-<img width="376" height="666" alt="image" src="https://github.com/user-attachments/assets/669658c7-5eec-494b-ac6e-415c971972b5" />
+
+<img width="368" height="637" alt="image" src="https://github.com/user-attachments/assets/1bdedc01-5a47-48de-8998-0c5bfc01d57f" />
 
 ## 技术栈
 
