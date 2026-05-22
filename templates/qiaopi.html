@@ -1149,11 +1149,7 @@
           updateGenerateQuota(json.quota);
           $("body").value = json.body || data.body;
           render(currentData());
-          previewMode = true;
-          document.body.classList.add("previewing");
-          showPage(2);
           scheduleLetterLayoutSync();
-          $("stage").scrollIntoView({ behavior: "smooth", block: "start" });
         } finally {
           $("generateBtn").disabled = false;
           updateGenerateQuota();
