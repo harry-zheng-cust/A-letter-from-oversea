@@ -52,6 +52,18 @@
       margin-bottom: 10px;
     }
     .editor-head h1 { margin: 0; }
+    .head-links {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .user-chip {
+      color: #8a4a39;
+      font-size: 12px;
+      font-weight: 700;
+    }
     .logout-link {
       color: #8a4a39;
       text-decoration: none;
@@ -59,6 +71,13 @@
       font-weight: 700;
     }
     .logout-link:hover { text-decoration: underline; }
+    .admin-link {
+      color: #8a4a39;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .admin-link:hover { text-decoration: underline; }
     .field { display: grid; gap: 7px; margin-bottom: 12px; }
     .field label { color: #5b422f; font-size: 13px; font-weight: 700; }
     .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -73,6 +92,55 @@
     }
     textarea { min-height: 154px; resize: vertical; line-height: 1.7; }
     input:focus, textarea:focus { border-color: #9d4e3f; box-shadow: 0 0 0 3px rgba(157,78,63,.16); }
+    .password-wrap {
+      position: relative;
+    }
+    .password-wrap input {
+      padding-right: 58px;
+    }
+    .password-toggle {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 34px;
+      height: 30px;
+      min-height: 30px;
+      margin: 0;
+      padding: 0;
+      border: 1px solid #c9a177;
+      border-radius: 6px;
+      background: #fff6e8;
+      color: #71432f;
+      display: grid;
+      place-items: center;
+      line-height: 1;
+      cursor: pointer;
+    }
+    .password-toggle:hover {
+      background: #ffeed6;
+      border-color: #9d4e3f;
+      color: #4b2d1f;
+    }
+    .password-icon {
+      grid-area: 1 / 1;
+      width: 18px;
+      height: 18px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .password-toggle .eye-open {
+      display: none;
+    }
+    .password-toggle.is-visible .eye-open {
+      display: block;
+    }
+    .password-toggle.is-visible .eye-closed {
+      display: none;
+    }
     .actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 14px; }
     .btn {
       border: 0;
@@ -94,6 +162,40 @@
       background: #fff7e6;
       overflow-wrap: anywhere;
       font-size: 13px;
+      white-space: pre-line;
+    }
+    .unlock-shell {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+    .unlock-panel {
+      width: min(100%, 420px);
+      padding: 28px;
+      border: 1px solid rgba(105,65,33,.28);
+      border-radius: 8px;
+      background: rgba(255,250,240,.94);
+      box-shadow: 0 22px 60px rgba(61,31,10,.22);
+    }
+    .unlock-panel h1 {
+      margin: 0 0 8px;
+      font-size: 24px;
+      letter-spacing: 0;
+    }
+    .unlock-panel p {
+      margin: 0 0 18px;
+      color: #76533b;
+      line-height: 1.6;
+      font-size: 14px;
+    }
+    .unlock-panel .error {
+      margin: 0 0 14px;
+      padding: 10px 12px;
+      border: 1px solid #e0a097;
+      border-radius: 6px;
+      background: #fff0ed;
+      color: #9b2f22;
     }
     .stage {
       min-height: calc(100vh - 36px);
@@ -559,7 +661,37 @@
     }
   </style>
 </head>
-<body class="{{ 'viewer' if share else '' }}">
+<body class="{{ 'viewer locked' if locked_share else ('viewer' if share else '') }}">
+  {% if locked_share %}
+  <main class="unlock-shell">
+    <form class="unlock-panel" method="post" action="/s/{{ letter_id }}/unlock">
+      <h1>侨批已封存</h1>
+      <p>请输入分享密码后查看。</p>
+      {% if unlock_error %}
+        <div class="error">{{ unlock_error }}</div>
+      {% endif %}
+      <div class="field">
+        <label for="shareUnlockPassword">分享密码</label>
+        <div class="password-wrap">
+          <input id="shareUnlockPassword" name="password" type="password" autocomplete="current-password" required autofocus>
+          <button class="password-toggle" type="button" data-toggle-password="shareUnlockPassword" aria-label="显示密码" aria-pressed="false" title="显示密码">
+            <svg class="password-icon eye-open" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            <svg class="password-icon eye-closed" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M10.7 5.1A10.5 10.5 0 0 1 12 5c6.5 0 10 7 10 7a17.7 17.7 0 0 1-2.1 3.1"></path>
+              <path d="M6.6 6.6C3.6 8.6 2 12 2 12s3.5 7 10 7a10.6 10.6 0 0 0 5.4-1.6"></path>
+              <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"></path>
+              <path d="M3 3l18 18"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <button class="btn" type="submit">查看侨批</button>
+    </form>
+  </main>
+  {% else %}
   <button class="music" id="musicToggle" aria-label="播放音乐">♪</button>
   <audio
     id="bgm"
@@ -575,7 +707,15 @@
     <aside class="editor">
       <div class="editor-head">
         <h1>侨批生成器</h1>
-        <a class="logout-link" href="/logout">退出</a>
+        <div class="head-links">
+          {% if user and user.is_admin %}
+            <a class="admin-link" href="/admin">后台</a>
+          {% endif %}
+          {% if user and user.identity %}
+            <span class="user-chip">{{ user.identity }}</span>
+          {% endif %}
+          <a class="logout-link" href="/logout">退出</a>
+        </div>
       </div>
       <div class="row">
         <div class="field">
@@ -609,8 +749,26 @@
         <label for="blessing">红包祝福语</label>
         <input id="blessing" maxlength="120" placeholder="平安喜乐，万事顺遂">
       </div>
+      <div class="field">
+        <label for="sharePassword">分享密码（可选）</label>
+        <div class="password-wrap">
+          <input id="sharePassword" type="password" maxlength="128" autocomplete="new-password" placeholder="留空则公开访问">
+          <button class="password-toggle" type="button" data-toggle-password="sharePassword" aria-label="显示密码" aria-pressed="false" title="显示密码">
+            <svg class="password-icon eye-open" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            <svg class="password-icon eye-closed" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M10.7 5.1A10.5 10.5 0 0 1 12 5c6.5 0 10 7 10 7a17.7 17.7 0 0 1-2.1 3.1"></path>
+              <path d="M6.6 6.6C3.6 8.6 2 12 2 12s3.5 7 10 7a10.6 10.6 0 0 0 5.4-1.6"></path>
+              <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"></path>
+              <path d="M3 3l18 18"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
       <div class="actions">
-        <button class="btn secondary" id="generateBtn">百炼生成正文</button>
+        <button class="btn secondary" id="generateBtn">{% if user and user.quota and user.quota.unlimited %}百炼生成正文（不限次数）{% elif user and user.quota and user.quota.remaining is not none %}百炼生成正文（剩余 {{ user.quota.remaining }} 次）{% else %}百炼生成正文{% endif %}</button>
         <button class="btn ghost" id="previewBtn" type="button">预览效果</button>
         <button class="btn" id="shareBtn">生成分享</button>
         <button class="btn ghost" id="copyBtn" type="button">复制链接</button>
@@ -689,9 +847,12 @@
       <div class="preview-hint" id="viewerHint">左右滑动切换页面，电脑端也可点击页面两侧。</div>
     </section>
   </main>
+  {% endif %}
 
+  {% if not locked_share %}
   <script>
     const shareData = {{ share_json|safe }};
+    const userContext = {{ user_json|safe }};
     const $ = (id) => document.getElementById(id);
     const defaults = {
       cover_text: "平安批",
@@ -915,9 +1076,22 @@
       $("previewBtn").textContent = previewMode ? "退出预览" : "预览效果";
     }
 
+    function generateButtonLabel() {
+      const quota = userContext.quota || {};
+      if (quota.unlimited) return "百炼生成正文（不限次数）";
+      if (Number.isFinite(quota.remaining)) return `百炼生成正文（剩余 ${quota.remaining} 次）`;
+      return "百炼生成正文";
+    }
+
+    function updateGenerateQuota(quota) {
+      if (quota) userContext.quota = quota;
+      if ($("generateBtn")) $("generateBtn").textContent = generateButtonLabel();
+    }
+
     setControls(state);
     render(state);
     showPage(0);
+    updateGenerateQuota();
     window.addEventListener("resize", scheduleLetterLayoutSync);
 
     $("prevPage").addEventListener("click", () => showPage(currentPage - 1));
@@ -959,41 +1133,71 @@
       $("generateBtn").addEventListener("click", async () => {
         $("generateBtn").disabled = true;
         $("generateBtn").textContent = "生成中...";
-        const data = currentData();
-        const res = await fetch("/api/generate", {
-          method: "POST",
-          headers: {"Content-Type": "application/json"},
-          body: JSON.stringify({...data, prompt: $("prompt").value.trim()})
-        });
-        const json = await res.json();
-        $("body").value = json.body || data.body;
-        render(currentData());
-        previewMode = true;
-        document.body.classList.add("previewing");
-        showPage(2);
-        scheduleLetterLayoutSync();
-        $("stage").scrollIntoView({ behavior: "smooth", block: "start" });
-        $("generateBtn").disabled = false;
-        $("generateBtn").textContent = "百炼生成正文";
+        try {
+          const data = currentData();
+          const res = await fetch("/api/generate", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({...data, prompt: $("prompt").value.trim()})
+          });
+          const json = await res.json();
+          if (!res.ok) {
+            $("shareBox").style.display = "block";
+            $("shareBox").textContent = json.detail || "生成失败，请稍后重试";
+            return;
+          }
+          updateGenerateQuota(json.quota);
+          $("body").value = json.body || data.body;
+          render(currentData());
+          previewMode = true;
+          document.body.classList.add("previewing");
+          showPage(2);
+          scheduleLetterLayoutSync();
+          $("stage").scrollIntoView({ behavior: "smooth", block: "start" });
+        } finally {
+          $("generateBtn").disabled = false;
+          updateGenerateQuota();
+        }
       });
 
       $("shareBtn").addEventListener("click", async () => {
-        const res = await fetch("/api/letters", {
-          method: "POST",
-          headers: {"Content-Type": "application/json"},
-          body: JSON.stringify(currentData())
-        });
-        const json = await res.json();
-        const url = json.url && json.url.startsWith("http")
-          ? json.url
-          : new URL(json.url || json.path, location.origin).href;
-        $("shareBox").style.display = "block";
-        $("shareBox").textContent = url;
-        window.lastShareUrl = url;
+        const defaultLabel = $("shareBtn").textContent;
+        $("shareBtn").disabled = true;
+        $("shareBtn").textContent = "生成中...";
+        try {
+          const sharePassword = $("sharePassword").value;
+          const res = await fetch("/api/letters", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+              ...currentData(),
+              share_password: sharePassword
+            })
+          });
+          if (!res.ok) {
+            $("shareBox").style.display = "block";
+            $("shareBox").textContent = "生成失败，请稍后重试";
+            return;
+          }
+          const json = await res.json();
+          const url = json.url && json.url.startsWith("http")
+            ? json.url
+            : new URL(json.url || json.path, location.origin).href;
+          const shareText = json.password_protected
+            ? `分享链接：${url}\n分享密码：${sharePassword}`
+            : `分享链接：${url}`;
+          $("shareBox").style.display = "block";
+          $("shareBox").textContent = shareText;
+          window.lastShareUrl = url;
+          window.lastShareText = shareText;
+        } finally {
+          $("shareBtn").disabled = false;
+          $("shareBtn").textContent = defaultLabel;
+        }
       });
 
       $("copyBtn").addEventListener("click", async () => {
-        const text = window.lastShareUrl || $("shareBox").textContent;
+        const text = window.lastShareText || $("shareBox").textContent;
         const defaultLabel = $("copyBtn").textContent;
         const copied = await copyText(text);
         $("copyBtn").textContent = copied ? "已复制" : "复制失败";
@@ -1037,6 +1241,21 @@
         alert(`红包已查收\n金额：¥${amount}\n${blessing}`);
       });
     }
+  </script>
+  {% endif %}
+  <script>
+    document.querySelectorAll("[data-toggle-password]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const input = document.getElementById(button.dataset.togglePassword);
+        if (!input) return;
+        const shouldShow = input.type === "password";
+        input.type = shouldShow ? "text" : "password";
+        button.classList.toggle("is-visible", shouldShow);
+        button.setAttribute("aria-label", shouldShow ? "隐藏密码" : "显示密码");
+        button.setAttribute("aria-pressed", shouldShow ? "true" : "false");
+        button.title = shouldShow ? "隐藏密码" : "显示密码";
+      });
+    });
   </script>
 </body>
 </html>

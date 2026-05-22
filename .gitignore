@@ -244,3 +244,4 @@ Thumbs.db
 
 # Logs
 *.log
+data/letters.json
